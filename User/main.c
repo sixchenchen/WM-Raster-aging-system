@@ -12,19 +12,21 @@
 #include "system_config.h"
 #include "key.h"
 #include "setting.h"
+#include "icc.h"
 
 int main(void)
 {
 	// init system tick
 	systick_config();
-	// init dip switch
+	// init
+	Delay_init();
 	Dip_Switch_Init();
 	RS485_Init(RS485_Baud);
 	LED_Init();
 	SEG_Init();
-	Delay_init();
 	Sensor_Init();
 	Key_Init();
+	IIC_Init();
 	g_config = DIP_Read_Config();
 
 	while (1)
