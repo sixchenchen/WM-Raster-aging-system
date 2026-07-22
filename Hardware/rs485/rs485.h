@@ -3,14 +3,24 @@
 
 #include "gd32f10x.h"
 
-#define RS485_RX_BUF_SIZE 16
+#define RS485_RX_BUF_SIZE 128
 
-#define RS485_Baud 9600
+#define RS485_Baud 115200
 
 #define RS485_FRAME_TIMEOUT_MS 5
+
+/**
+ * PA1:RE/DE
+ * PA2:TX
+ * PA3:RX
+ */
+#define RS485_PORT GPIOA
+#define RS485_DE_PIN GPIO_PIN_1
+#define RS485_TX_PIN GPIO_PIN_2
+#define RS485_RX_PIN GPIO_PIN_3
+
 typedef struct
 {
-
     uint8_t rx_buf[RS485_RX_BUF_SIZE];
     uint16_t rx_count;
     uint8_t rx_flag;
@@ -61,17 +71,6 @@ uint8_t RS485_Available(void);
  */
 uint16_t RS485_Read(uint8_t *buf);
 
-/**
- * @brief RS485 transimission mode
- *
- */
-void RS485_TX_Mode(void);
-
-/**
- * @brief RS485 receiving mode
- *
- */
-void RS485_RX_Mode(void);
 
 /**
  * @brief Periodic invocation in the task Determine the end of a frame

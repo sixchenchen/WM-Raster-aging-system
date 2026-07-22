@@ -44,31 +44,31 @@ void Key_Scan(void)
     static uint8_t last_reset = 0;
     uint8_t now;
     // key set event
-    now = Key_Read(KEY_PORT, KEY_SET);
+    now = Key_Read(KEY_PORT, KEY_SET_EVENT);
     if (now && !last_set)
     {
-        key_event = KEY_SET;
+        key_event = KEY_SET_EVENT;
     }
     last_set = now;
     // key up event
-    now = Key_Read(KEY_PORT, KEY_UP);
+    now = Key_Read(KEY_PORT, KEY_UP_EVENT);
     if (now && !last_up)
     {
-        key_event = KEY_UP;
+        key_event = KEY_UP_EVENT;
     }
     last_up = now;
     // key donw event
-    now = Key_Read(KEY_PORT, KEY_DOWN);
+    now = Key_Read(KEY_PORT, KEY_DOWN_EVENT);
     if (now && !last_down)
     {
-        key_event = KEY_DOWN;
+        key_event = KEY_DOWN_EVENT;
     }
     last_down = now;
     // key reset event
-    now = Key_Read(KEY_PORT, KEY_RESET);
+    now = Key_Read(KEY_PORT, KEY_RESET_EVENT);
     if (now && !last_reset)
     {
-        key_event = KEY_RESET;
+        key_event = KEY_RESET_EVENT;
     }
     last_reset = now;
 }

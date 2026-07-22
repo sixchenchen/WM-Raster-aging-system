@@ -26,6 +26,5 @@ void Sensor_Task(void);
 uint16_t Sensor_GetTriggerCount(void);
 
 /* clear count */
-void Sensor_ClearCount(void);
-
+void Sensor_Clear_Count(void);
 #endif

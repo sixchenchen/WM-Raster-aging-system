@@ -3,6 +3,9 @@
 
 #include "gd32f10x.h"
 
+// Stop seg
+#define SEG_OFF 0x00
+
 /*
     CLK -> PB6
     DIO -> PB7

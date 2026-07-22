@@ -5,20 +5,9 @@
 RS485_Handle rs485;
 
 /**
- * PA1:RE/DE
- * PA2:TX
- * PA3:RX
- */
-
-#define RS485_PORT GPIOA
-#define RS485_DE_PIN GPIO_PIN_1
-#define RS485_TX_PIN GPIO_PIN_2
-#define RS485_RX_PIN GPIO_PIN_3
-
-/**
  *  RS485 transimission mode
  */
-void RS485_TX_Mode(void)
+static void RS485_TX_Mode(void)
 {
     gpio_bit_set(RS485_PORT, RS485_DE_PIN);
 }
@@ -26,7 +15,7 @@ void RS485_TX_Mode(void)
 /**
  * RS485 receiving mode
  */
-void RS485_RX_Mode(void)
+static void RS485_RX_Mode(void)
 {
     gpio_bit_reset(RS485_PORT, RS485_DE_PIN);
 }
@@ -38,25 +27,25 @@ void RS485_Init(uint32_t baud)
 {
     // 1.configure the clock enable
     rcu_periph_clock_enable(RCU_GPIOA);
-    rcu_periph_clock_enable(RCU_USART2);
+    rcu_periph_clock_enable(RCU_USART1);
     // 2.configure pin mode
     gpio_init(RS485_PORT, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, RS485_DE_PIN);
     gpio_init(RS485_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, RS485_RX_PIN);
     gpio_init(RS485_PORT, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, RS485_TX_PIN);
     // 3.set RS485 mode
     RS485_RX_Mode();
-    // 4.configure usart2
-    usart_deinit(USART2);
-    usart_baudrate_set(USART2, baud);
-    usart_word_length_set(USART2, USART_WL_8BIT);
-    usart_stop_bit_set(USART2, USART_STB_1BIT);
-    usart_parity_config(USART2, USART_PM_NONE);
-    usart_transmit_config(USART2, USART_TRANSMIT_ENABLE);
-    usart_receive_config(USART2, USART_RECEIVE_ENABLE);
+    // 4.configure USART1
+    usart_deinit(USART1);
+    usart_baudrate_set(USART1, baud);
+    usart_word_length_set(USART1, USART_WL_8BIT);
+    usart_stop_bit_set(USART1, USART_STB_1BIT);
+    usart_parity_config(USART1, USART_PM_NONE);
+    usart_transmit_config(USART1, USART_TRANSMIT_ENABLE);
+    usart_receive_config(USART1, USART_RECEIVE_ENABLE);
     // 5.open reciveing interrupt
-    usart_interrupt_enable(USART2, USART_INT_RBNE);
-    nvic_irq_enable(USART2_IRQn, 1, 1);
-    usart_enable(USART2);
+    usart_interrupt_enable(USART1, USART_INT_RBNE);
+    nvic_irq_enable(USART1_IRQn, 1, 1);
+    usart_enable(USART1);
 }
 
 /**
@@ -65,10 +54,10 @@ void RS485_Init(uint32_t baud)
 void RS485_SendByte(uint16_t data)
 {
     RS485_TX_Mode();
-    while (RESET == usart_flag_get(USART2, USART_FLAG_TBE))
+    while (RESET == usart_flag_get(USART1, USART_FLAG_TBE))
         ;
-    usart_data_transmit(USART2, data);
-    while (RESET == usart_flag_get(USART2, USART_FLAG_TC))
+    usart_data_transmit(USART1, data);
+    while (RESET == usart_flag_get(USART1, USART_FLAG_TC))
         ;
     RS485_RX_Mode();
 }
@@ -82,12 +71,12 @@ void RS485_SendArray(uint8_t *data, uint16_t len)
     RS485_TX_Mode();
     for (i = 0; i < len; i++)
     {
-        while (RESET == usart_flag_get(USART2, USART_FLAG_TBE))
+        while (RESET == usart_flag_get(USART1, USART_FLAG_TBE))
             ;
-        usart_data_transmit(USART2, data[i]);
+        usart_data_transmit(USART1, data[i]);
     }
 
-    while (RESET == usart_flag_get(USART2, USART_FLAG_TC))
+    while (RESET == usart_flag_get(USART1, USART_FLAG_TC))
         ;
     RS485_RX_Mode();
 }
@@ -103,24 +92,6 @@ void RS485_SendString(char *str)
     }
 }
 
-/**
- * Receiving interrupt
- */
-void USART2_IRQHandler(void)
-{
-    if (usart_interrupt_flag_get(USART2, USART_INT_FLAG_RBNE))
-    {
-        uint8_t data;
-        data = usart_data_receive(USART2);
-        if (rs485.rx_count < RS485_RX_BUF_SIZE)
-        {
-            rs485.rx_buf[rs485.rx_count++] = data;
-            /* Each byte received Update time */
-            rs485.rx_tick = GetTick();
-            rs485.rx_flag = 1;
-        }
-    }
-}
 /**
  * RS485 available
  */
@@ -174,4 +145,23 @@ uint8_t RS485_FrameAvailable(void)
         rs485.frame_ready = 1;
     }
     return rs485.frame_ready;
+}
+
+/**
+ * Receiving interrupt
+ */
+void USART1_IRQHandler(void)
+{
+    if (usart_interrupt_flag_get(USART1, USART_INT_FLAG_RBNE))
+    {
+        uint8_t data;
+        data = usart_data_receive(USART1);
+        if (rs485.rx_count < RS485_RX_BUF_SIZE)
+        {
+            rs485.rx_buf[rs485.rx_count++] = data;
+            /* Each byte received Update time */
+            rs485.rx_tick = GetTick();
+            rs485.rx_flag = 1;
+        }
+    }
 }

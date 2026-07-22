@@ -20,10 +20,10 @@ typedef enum
 {
     KEY_NONE = 0,
 
-    KEY_SET,  // set
-    KEY_UP,   // up
-    KEY_DOWN, // down
-    KEY_RESET // reset
+    KEY_SET_EVENT,  // set
+    KEY_UP_EVENT,   // up
+    KEY_DOWN_EVENT, // down
+    KEY_RESET_EVENT // reset
 
 } Key_Event;
 

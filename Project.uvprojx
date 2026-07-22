@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Hardware;.\User;.\Firmware\CMSIS;.\Firmware\CMSIS\GD\GD32F10x\Include;.\Firmware\GD32F10x_standard_peripheral\Include;.\Hardware\rs485;.\Hardware\dip;.\Hardware\buzzer;.\Hardware\led;.\Hardware\key;.\Hardware\seg;.\Hardware\delay;.\Common;.\Hardware\sensor;.\Hardware\setting;.\Hardware\icc</IncludePath>
+              <IncludePath>.\Hardware;.\User;.\Firmware\CMSIS;.\Firmware\CMSIS\GD\GD32F10x\Include;.\Firmware\GD32F10x_standard_peripheral\Include;.\Hardware\rs485;.\Hardware\dip;.\Hardware\buzzer;.\Hardware\led;.\Hardware\key;.\Hardware\seg;.\Hardware\delay;.\Common;.\Hardware\sensor;.\Hardware\icc;.\Hardware\usart;.\App\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -534,21 +534,6 @@
               <FileType>1</FileType>
               <FilePath>.\Hardware\rs485\rs485.c</FilePath>
             </File>
-            <File>
-              <FileName>rs485_master_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware\rs485\rs485_master_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>rs485_slave_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware\rs485\rs485_slave_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>rs485_protocol.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware\rs485\rs485_protocol.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -612,16 +597,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Hardware\setting</GroupName>
-          <Files>
-            <File>
-              <FileName>setting.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware\setting\setting.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Hardware\icc</GroupName>
           <Files>
             <File>
@@ -632,12 +607,60 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Common</GroupName>
+          <GroupName>Hardware\usart</GroupName>
           <Files>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\usart\usart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Common</GroupName>
+        </Group>
+        <Group>
+          <GroupName>App</GroupName>
+          <Files>
+            <File>
+              <FileName>alarm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\alarm.c</FilePath>
+            </File>
+            <File>
+              <FileName>key_process.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\key_process.c</FilePath>
+            </File>
+            <File>
+              <FileName>rs485_master_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\rs485_master_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>rs485_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\rs485_protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>rs485_slave_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\rs485_slave_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>rs485_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\rs485_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>setting.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\setting.c</FilePath>
+            </File>
             <File>
               <FileName>system_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Common\system_config.c</FilePath>
+              <FilePath>.\App\Source\system_config.c</FilePath>
             </File>
           </Files>
         </Group>

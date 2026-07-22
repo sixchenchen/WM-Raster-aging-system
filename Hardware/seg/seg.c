@@ -194,14 +194,17 @@ void SEG_Task(void)
 {
     static uint32_t flash_tick = 0;
     static uint32_t seg_tick = 0;
-    // flash 500ms
-
+    /*
+       flash period
+       500ms ON
+       500ms OFF
+   */
     if (GetTick() - flash_tick >= 500)
     {
         flash_tick = GetTick();
         flash_flag = !flash_flag;
     }
-    // Refresh 10 ms
+    // Refresh display 10 ms
     if (GetTick() - seg_tick >= 10)
     {
         seg_tick = GetTick();
@@ -214,17 +217,17 @@ void SEG_Task(void)
         pos = Setting_Get_Pos();
         edit = Setting_Is_Edit();
         // decompose the value
-        digit[0] = SEG_TABLE[value % 10];
-        digit[1] = SEG_TABLE[value / 10 % 10];
-        digit[2] = SEG_TABLE[value / 100 % 10];
-        digit[3] = SEG_TABLE[value / 1000 % 10];
+        digit[0] = SEG_TABLE[value / 1000 % 10]; // 千位
+        digit[1] = SEG_TABLE[value / 100 % 10];  // 百位
+        digit[2] = SEG_TABLE[value / 10 % 10];   // 十位
+        digit[3] = SEG_TABLE[value % 10];        // 个位
         if (edit)
         {
             /* code */
             if (flash_flag)
             {
                 /* code */
-                digit[pos] = 0;
+                digit[pos] = SEG_OFF;
             }
         }
         SEG_DisplayDigits(digit);

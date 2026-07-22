@@ -3,6 +3,7 @@
 #include "rs485.h"
 #include "dip_switch.h"
 #include "system_config.h"
+#include "sensor.h"
 
 /*
     crc = addr ^ cmd ^ len;

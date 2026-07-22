@@ -13,6 +13,7 @@
 #include "key.h"
 #include "setting.h"
 #include "icc.h"
+#include "usart.h"
 
 int main(void)
 {
@@ -21,29 +22,34 @@ int main(void)
 	// init
 	Delay_init();
 	Dip_Switch_Init();
-	RS485_Init(RS485_Baud);
+	System_Config_Init();
 	LED_Init();
-	SEG_Init();
-	Sensor_Init();
-	Key_Init();
-	IIC_Init();
-	g_config = DIP_Read_Config();
+	USART2_Init(USART2_BAUD);
+	USART2_SendString("GD32 USART OK\r\n");
+	uint8_t buf[32];
+	const System_Config *config;
+	config = System_Config_Get();
 
 	while (1)
 	{
-		RS485_Task();
-		// 2.Type selection mode for judgment
-		if (g_config.board == BOARD_MASTER)
+		// RS485_Task();
+		//  2.Type selection mode for judgment
+		if (config->board == BOARD_MASTER)
 		{
-			RS485_Master_Task();
+			// RS485_Master_Task();
+			LED_On();
+			Delay_ms(1000);
 		}
-		else if (g_config.board == BOARD_SLAVE)
+		else if (config->board == BOARD_SLAVE)
 		{
-			Sensor_Task();
-			Key_Task();
-			Setting_Task();
-			SEG_Task();
-			RS485_Slave_Task();
+			LED_Toggle();
+			if (USART2_GetRxLength())
+			{
+				USART2_GetRxData(buf, USART2_GetRxLength());
+				USART2_SendString("RX:\r\n");
+				USART2_SendArray(buf, sizeof(buf));
+			}
+			Delay_ms(1000);
 		}
 	}
 }

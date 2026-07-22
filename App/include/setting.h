@@ -9,12 +9,6 @@
 void Setting_Init(void);
 
 /*
-    setting task
-    main loap call
-*/
-void Setting_Task(void);
-
-/*
     obtain current value
 */
 uint16_t Setting_Get_Value(void);
@@ -32,5 +26,16 @@ uint8_t Setting_Get_Pos(void);
     currently editing
 */
 uint8_t Setting_Is_Edit(void);
+
+/*
+    Set button processing
+*/
+void Setting_Set(void);
+
+void Setting_Up(void);
+
+void Setting_Down(void);
+
+void Setting_Reset(void);
 
 #endif
