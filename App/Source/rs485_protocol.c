@@ -82,7 +82,8 @@ uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len)
 uint8_t RS485_CheckFrame(uint8_t *buf, uint16_t len)
 {
     /*
-        min frame : AA + ADDR + CMD + （LEN = 0 + CRC） = 5
+        min frame : AA + ADDRESS + CMD + LEN（LEN = 0 + CRC）+ CRC = 5
+        frame :
     */
     if (len < 5)
     {
