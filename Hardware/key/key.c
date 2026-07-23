@@ -38,37 +38,65 @@ static uint8_t Key_Read(uint32_t port, uint32_t pin)
 */
 void Key_Scan(void)
 {
+
     static uint8_t last_set = 0;
     static uint8_t last_up = 0;
     static uint8_t last_down = 0;
     static uint8_t last_reset = 0;
+    static uint16_t reset_time = 0;
     uint8_t now;
-    // key set event
-    now = Key_Read(KEY_PORT, KEY_SET_EVENT);
+
+    // SET
+    now = Key_Read(KEY_PORT, KEY_SET_PIN);
     if (now && !last_set)
     {
         key_event = KEY_SET_EVENT;
     }
     last_set = now;
-    // key up event
-    now = Key_Read(KEY_PORT, KEY_UP_EVENT);
+    // UP
+    now = Key_Read(KEY_PORT, KEY_UP_PIN);
     if (now && !last_up)
     {
         key_event = KEY_UP_EVENT;
     }
     last_up = now;
-    // key donw event
-    now = Key_Read(KEY_PORT, KEY_DOWN_EVENT);
+    // DOWN
+    now = Key_Read(KEY_PORT, KEY_DOWN_PIN);
     if (now && !last_down)
     {
         key_event = KEY_DOWN_EVENT;
     }
     last_down = now;
-    // key reset event
-    now = Key_Read(KEY_PORT, KEY_RESET_EVENT);
-    if (now && !last_reset)
+    // RESET
+    now = Key_Read(KEY_PORT, KEY_RESET_PIN);
+
+    // 按下
+    if (now)
     {
-        key_event = KEY_RESET_EVENT;
+        reset_time++;
+        // 长按2秒
+        if (reset_time >= 200)
+        {
+            key_event = KEY_RESET_LONG_EVENT;
+            reset_time = 0;
+        }
+    }
+    else
+    {
+        // 松开
+        if (last_reset)
+        {
+            /*
+                如果按下时间小于2秒
+                认为短按
+            */
+
+            if (reset_time > 0 && reset_time < 200)
+            {
+                key_event = KEY_RESET_SHORT_EVENT;
+            }
+        }
+        reset_time = 0;
     }
     last_reset = now;
 }
@@ -78,7 +106,7 @@ void Key_Scan(void)
 */
 Key_Event Key_Get_Event(void)
 {
-    static uint8_t temp;
+    Key_Event temp;
     temp = key_event;
     key_event = KEY_NONE;
     return temp;

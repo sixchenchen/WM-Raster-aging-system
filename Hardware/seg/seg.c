@@ -3,7 +3,15 @@
 #include "delay.h"
 #include "setting.h"
 
-#define SEG_Delay_us() Delay_us(5);
+#define SEG_DELAY(value)              \
+    do                                \
+    {                                 \
+        uint32_t delay_count = value; \
+        while (delay_count--)         \
+        {                             \
+            __NOP();                  \
+        }                             \
+    } while (0)
 
 static uint8_t brightness = 7;
 /*
@@ -14,100 +22,140 @@ static uint8_t flash_flag = 0;
 /*
     0~9 Digital tube segment code
 */
-static const uint8_t SEG_TABLE[10] = {
-    0x3f, // 0
-    0x06, // 1
-    0x5b, // 2
-    0x4f, // 3
-    0x66, // 4
-    0x6d, // 5
-    0x7d, // 6
-    0x07, // 7
-    0x7f, // 8
-    0x6f  // 9
-};
+static const uint8_t SEG_TABLE[10] =
+    {
+        0x3F,
+        0x06,
+        0x5B,
+        0x4F,
+        0x66,
+        0x6D,
+        0x7D,
+        0x07,
+        0x7F,
+        0x6F};
 
-/* set CLK hight */
-static void CLK_HIGH(void)
+/* Set CLK high. */
+static void CLK_H(void)
 {
     gpio_bit_set(SEG_PORT, SEG_CLK_PIN);
 }
 
-/* set CLK low */
-static void CLK_LOW(void)
+/* Set CLK low. */
+static void CLK_L(void)
 {
     gpio_bit_reset(SEG_PORT, SEG_CLK_PIN);
 }
 
-/* set DIO hight */
-static void DIO_HIGH(void)
+/* Set DIO high. */
+static void DIO_H(void)
 {
     gpio_bit_set(SEG_PORT, SEG_DIO_PIN);
 }
 
-/* set DIO low */
-static void DIO_LOW(void)
+/* Set DIO low. */
+static void DIO_L(void)
 {
     gpio_bit_reset(SEG_PORT, SEG_DIO_PIN);
 }
 
-/* SEG start */
+/* Send the TM1637 start condition. */
 static void SEG_Start(void)
 {
-    DIO_HIGH();
-    CLK_HIGH();
-    SEG_Delay_us();
-    DIO_LOW();
+    SEG_DIO_GPIO_OUTPUT();
+    CLK_H();
+    DIO_H();
+    SEG_DELAY(6);
+    DIO_L();
 }
 
-/* SEG Stop */
+/* Send the TM1637 stop condition. */
 static void SEG_Stop(void)
 {
-    CLK_LOW();
-    SEG_Delay_us();
-    DIO_LOW();
-    CLK_HIGH();
-    SEG_Delay_us();
-    DIO_HIGH();
+    CLK_L();
+    SEG_DELAY(5);
+    DIO_L();
+    SEG_DELAY(5);
+    CLK_H();
+    SEG_DELAY(5);
+    DIO_H();
+}
+
+/* Write one byte and leave the bus ready for the ACK phase. */
+static void SEG_WriteByte(uint8_t data)
+{
+    uint8_t i;
+
+    SEG_DIO_GPIO_OUTPUT();
+
+    for (i = 0; i < 8; i++)
+    {
+        CLK_L();
+        if (data & 0x01)
+            DIO_H();
+        else
+            DIO_L();
+        SEG_DELAY(3);
+        CLK_H();
+        SEG_DELAY(3);
+        data >>= 1;
+    }
+}
+
+/* Read the TM1637 ACK bit and restore DIO to output mode. */
+static uint8_t SEG_IsAck(void)
+{
+    uint8_t time = 60;
+    uint8_t ack = 0;
+
+    CLK_L();
+    SEG_DIO_GPIO_INPUT();
+
+    while (time--)
+    {
+        if (RESET == gpio_input_bit_get(SEG_DIO_GPIO_PORT, SEG_DIO_GPIO_PIN))
+        {
+            ack = 1;
+            break;
+        }
+    }
+
+    CLK_H();
+    SEG_DELAY(6);
+    CLK_L();
+    SEG_DIO_GPIO_OUTPUT();
+
+    return ack;
+}
+
+/* Send a command byte, including its ACK phase. */
+static uint8_t SEG_SendCommand(uint8_t cmd)
+{
+    SEG_Start();
+    SEG_WriteByte(cmd);
+    if (!SEG_IsAck())
+    {
+        SEG_Stop();
+        return 0;
+    }
+    SEG_Stop();
+    return 1;
 }
 
 /* Initialize the digital tube  */
 void SEG_Init(void)
 {
     // 1.configure the clock enable
-    rcu_periph_clock_enable(RCU_GPIOB);
+    SEG_CLK_GPIO_CLK_ENABLE();
     // 2.configure CLK,DIO mode
-    gpio_init(SEG_PORT, GPIO_MODE_OUT_OD, GPIO_OSPEED_50MHZ, SEG_CLK_PIN | SEG_DIO_PIN);
-    CLK_HIGH();
-    DIO_HIGH();
+    SEG_CLK_GPIO_OUTPUT();
+    SEG_DIO_GPIO_OUTPUT();
+    CLK_H();
+    DIO_H();
+    Delay_ms(10);
+    // open display
     SEG_Clear();
-}
-
-/* Write data to TIM1647 */
-static void SEG_WriteByte(uint8_t data)
-{
-    uint8_t i;
-    for (i = 0; i < 8; i++)
-    {
-        CLK_LOW();
-        if (data & 0x01)
-            DIO_HIGH();
-        else
-            DIO_LOW();
-        SEG_Delay_us();
-        CLK_HIGH();
-        SEG_Delay_us();
-        data >>= 1;
-    }
-    CLK_LOW();
-}
-
-/* Send command to TIM1647 */
-static void SEG_SendCommand(uint8_t cmd)
-{
-    SEG_Start();
-    SEG_WriteByte(cmd);
-    SEG_Stop();
+    SEG_SendCommand(0x88 | brightness);
 }
 
 /*
@@ -131,23 +179,32 @@ void SEG_DisplayNumber(uint16_t num)
 void SEG_DisplayDigits(uint8_t *data)
 {
     uint8_t i;
-    // automatic address incrementation 0x40 -> 0x41 -> 0x42 -> 0x43
-    SEG_SendCommand(0x40);
+    // Automatic address incrementation: 0x40 -> 0x41 -> 0x42 -> 0x43.
+    if (!SEG_SendCommand(0x40))
+    {
+        return;
+    }
+
     SEG_Start();
-    /*
-        0XC0:Starting from the ARM0 segment address
-        0xC0:RAM0 → first
-        0xC1:RAM1 → second
-        0xC2:RAM2 → third
-        0xC3:RAM3 → fourth
-    */
     SEG_WriteByte(0XC0);
+    if (!SEG_IsAck())
+    {
+        SEG_Stop();
+        return;
+    }
+
     for (i = 0; i < 4; i++)
     {
         SEG_WriteByte(data[i]);
+        if (!SEG_IsAck())
+        {
+            SEG_Stop();
+            return;
+        }
     }
     SEG_Stop();
-    // display control
+
+    // Display control and brightness.
     SEG_SendCommand(0x88 | brightness);
 }
 
@@ -155,6 +212,7 @@ void SEG_DisplayDigits(uint8_t *data)
 void SEG_Clear(void)
 {
     uint8_t buff[4] = {0, 0, 0, 0};
+
     SEG_DisplayDigits(buff);
 }
 
@@ -189,47 +247,56 @@ void SEG_DisplayDecimal(uint16_t num, uint8_t position)
     SEG_DisplayDigits(digit);
 }
 
-// seg task
 void SEG_Task(void)
 {
     static uint32_t flash_tick = 0;
     static uint32_t seg_tick = 0;
-    /*
-       flash period
-       500ms ON
-       500ms OFF
-   */
-    if (GetTick() - flash_tick >= 500)
+
+    static uint16_t last_value = 0xffff;
+    static uint8_t last_pos = 0xff;
+    static uint8_t last_edit = 0xff;
+
+    uint16_t value;
+    uint8_t pos;
+    uint8_t edit;
+
+    if (GetTimeElapsed(flash_tick) >= 500)
     {
         flash_tick = GetTick();
         flash_flag = !flash_flag;
     }
-    // Refresh display 10 ms
-    if (GetTick() - seg_tick >= 10)
+
+    if (GetTimeElapsed(seg_tick) >= 10)
     {
         seg_tick = GetTick();
-        uint16_t value;
-        uint8_t pos;
-        uint8_t edit;
-        uint8_t digit[4];
-        // Retrieve value via setting
+
         value = Setting_Get_Value();
         pos = Setting_Get_Pos();
         edit = Setting_Is_Edit();
-        // decompose the value
-        digit[0] = SEG_TABLE[value / 1000 % 10]; // 千位
-        digit[1] = SEG_TABLE[value / 100 % 10];  // 百位
-        digit[2] = SEG_TABLE[value / 10 % 10];   // 十位
-        digit[3] = SEG_TABLE[value % 10];        // 个位
-        if (edit)
+
+        if (value != last_value ||
+            pos != last_pos ||
+            edit != last_edit ||
+            edit)
         {
-            /* code */
-            if (flash_flag)
+
+            last_value = value;
+            last_pos = pos;
+            last_edit = edit;
+
+            uint8_t digit[4];
+
+            digit[0] = SEG_TABLE[value / 1000 % 10];
+            digit[1] = SEG_TABLE[value / 100 % 10];
+            digit[2] = SEG_TABLE[value / 10 % 10];
+            digit[3] = SEG_TABLE[value % 10];
+
+            if (edit && flash_flag)
             {
-                /* code */
                 digit[pos] = SEG_OFF;
             }
+
+            SEG_DisplayDigits(digit);
         }
-        SEG_DisplayDigits(digit);
     }
 }

@@ -44,23 +44,21 @@ void Key_Process_Task(void)
         Setting_Down();
         break;
     /*
-        RESET button
-        Function:
-        1.clear setting
-        2.stop alarm
+        RESET short button
     */
-    case KEY_RESET_EVENT:
-        if (Setting_Is_Edit())
-        {
-            // Setting mode
-            Setting_Reset();
-        }
-        else
-        {
-            // Normal mode
-            Alarm_Stop();
-            Sensor_Clear_Count();
-        }
+    case KEY_RESET_SHORT_EVENT:
+
+        Setting_Reset_Short();
+
+        break;
+    /*
+        RESET long button
+    */
+    case KEY_RESET_LONG_EVENT:
+
+        Setting_Reset_Long();
+
+        break;
     /*
         no key
     */

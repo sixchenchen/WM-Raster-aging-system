@@ -94,16 +94,16 @@ void USART2_ClearRxBuffer(void)
     rx_count = 0;
 }
 
-void USART2_IRQHandler(void)
-{
-    uint8_t data;
-    if (RESET != usart_interrupt_flag_get(USART2, USART_INT_FLAG_RBNE))
-    {
-        data = usart_data_receive(USART2);
+// void USART2_IRQHandler(void)
+// {
+//     uint8_t data;
+//     if (RESET != usart_interrupt_flag_get(USART2, USART_INT_FLAG_RBNE))
+//     {
+//         data = usart_data_receive(USART2);
 
-        if (rx_count < USART2_RX_BUF_SIZE)
-        {
-            rx_buf[rx_count++] = data;
-        }
-    }
-}
+//         if (rx_count < USART2_RX_BUF_SIZE)
+//         {
+//             rx_buf[rx_count++] = data;
+//         }
+//     }
+// }

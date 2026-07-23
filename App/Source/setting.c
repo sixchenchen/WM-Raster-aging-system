@@ -115,7 +115,7 @@ void Setting_Set(void)
         if (edit_pos >= 4)
         {
             edit_pos = 0;
-            edit_mode = 0;
+            edit_mode = 1;
         }
     }
 }
@@ -156,12 +156,36 @@ void Setting_Down(void)
 }
 
 /*
-    RESET
+    RESET short
     exit
 */
 
-void Setting_Reset(void)
+void Setting_Reset_Short(void)
 {
     edit_mode = 0;
     edit_pos = 0;
+}
+
+/*
+    RESET long
+    clear seg value
+*/
+void Setting_Reset_Long(void)
+{
+    setting_value = 0;
+}
+
+/*
+    Raster trigger counting
+    +1 for each trigger
+    Maximum 9999
+*/
+void Sensor_Trigger(void)
+{
+    setting_value++;
+
+    if (setting_value > 9999)
+    {
+        setting_value = 0;
+    }
 }

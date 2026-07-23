@@ -40,7 +40,7 @@ void RS485_Init(uint32_t baud);
  *
  * @param data
  */
-void RS485_SendByte(uint16_t data);
+void RS485_SendByte(uint8_t data);
 
 /**
  * @brief RS485 send array
@@ -70,7 +70,6 @@ uint8_t RS485_Available(void);
  * @return uint16_t
  */
 uint16_t RS485_Read(uint8_t *buf);
-
 
 /**
  * @brief Periodic invocation in the task Determine the end of a frame

@@ -36,6 +36,10 @@ void Setting_Up(void);
 
 void Setting_Down(void);
 
-void Setting_Reset(void);
+void Setting_Reset_Short(void);
+
+void Setting_Reset_Long(void);
+
+void Sensor_Trigger(void);
 
 #endif

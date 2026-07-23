@@ -1,5 +1,6 @@
 #include "sensor.h"
 #include "systick.h"
+#include "setting.h"
 
 volatile uint16_t trigger_count = 0;
 volatile uint8_t sensor_event = 0;
@@ -52,6 +53,7 @@ void Sensor_Task(void)
         if (GetTimeElapsed(last_trigger_time) > 50)
         {
             trigger_count++;
+            Sensor_Trigger();
             last_trigger_time = GetTick();
         }
         sensor_event = 0;

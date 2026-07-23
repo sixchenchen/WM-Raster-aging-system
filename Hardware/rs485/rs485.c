@@ -51,7 +51,7 @@ void RS485_Init(uint32_t baud)
 /**
  * RS485 send byte
  */
-void RS485_SendByte(uint16_t data)
+void RS485_SendByte(uint8_t data)
 {
     RS485_TX_Mode();
     while (RESET == usart_flag_get(USART1, USART_FLAG_TBE))
@@ -150,15 +150,30 @@ uint8_t RS485_FrameAvailable(void)
 /**
  * Receiving interrupt
  */
+// void USART1_IRQHandler(void)
+// {
+//     if (usart_interrupt_flag_get(USART1, USART_INT_FLAG_RBNE))
+//     {
+//         uint8_t data;
+//         data = usart_data_receive(USART1);
+//         if (rs485.rx_count < RS485_RX_BUF_SIZE)
+//         {
+//             rs485.rx_buf[rs485.rx_count++] = data;
+
+//             rs485.rx_tick = GetTick();
+//             rs485.rx_flag = 1;
+//         }
+//     }
+// }
 void USART1_IRQHandler(void)
 {
     if (usart_interrupt_flag_get(USART1, USART_INT_FLAG_RBNE))
     {
-        uint8_t data;
+        uint16_t data;
         data = usart_data_receive(USART1);
         if (rs485.rx_count < RS485_RX_BUF_SIZE)
         {
-            rs485.rx_buf[rs485.rx_count++] = data;
+            rs485.rx_buf[rs485.rx_count++] = (uint8_t)data;
             /* Each byte received Update time */
             rs485.rx_tick = GetTick();
             rs485.rx_flag = 1;
