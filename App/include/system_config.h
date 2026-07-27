@@ -3,7 +3,8 @@
 
 #include "gd32f10x.h"
 
-#define SLAVE_COUNT 16
+#define SLAVE_COUNT 32
+#define SLAVE_ONLINE 1
 
 /*
     Board type
@@ -66,6 +67,7 @@ typedef struct
     uint8_t online;
     uint16_t trigger_count;
     uint8_t sensor_status;
+    uint32_t last_time;
 } Slave_Info;
 
 /*
@@ -77,6 +79,6 @@ void System_Config_Init(void);
 get config pointer
 */
 const System_Config *System_Config_Get(void);
-extern Slave_Info slave_list[];
+extern Slave_Info slave_list[SLAVE_COUNT];
 
 #endif

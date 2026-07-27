@@ -19,7 +19,7 @@ uint8_t RS485_CalcCRC(uint8_t *buf, uint16_t len);
 
 void RS485_Request(uint8_t addr);
 
-void RS485_SendStatus(uint8_t addr, uint16_t count);
+void RS485_SendStatus(uint8_t addr, uint16_t trigger_count);
 
 uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len);
 

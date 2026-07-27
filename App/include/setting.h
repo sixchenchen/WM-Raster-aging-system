@@ -9,6 +9,11 @@
 void Setting_Init(void);
 
 /*
+    Grating trigger increased
+*/
+void Setting_AddCount(void);
+
+/*
     obtain current value
 */
 uint16_t Setting_Get_Value(void);
@@ -39,7 +44,5 @@ void Setting_Down(void);
 void Setting_Reset_Short(void);
 
 void Setting_Reset_Long(void);
-
-void Sensor_Trigger(void);
 
 #endif

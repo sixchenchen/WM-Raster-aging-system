@@ -75,6 +75,20 @@ void Setting_Init(void)
     Rest_Set_Value();
 }
 
+/*
+    Raster trigger counting
+    +1 for each trigger
+    Maximum 9999
+*/
+void Setting_AddCount(void)
+{
+    setting_value++;
+    if (setting_value > 9999)
+    {
+        setting_value = 0;
+    }
+}
+
 // get seg value
 uint16_t Setting_Get_Value(void)
 {
@@ -173,19 +187,4 @@ void Setting_Reset_Short(void)
 void Setting_Reset_Long(void)
 {
     setting_value = 0;
-}
-
-/*
-    Raster trigger counting
-    +1 for each trigger
-    Maximum 9999
-*/
-void Sensor_Trigger(void)
-{
-    setting_value++;
-
-    if (setting_value > 9999)
-    {
-        setting_value = 0;
-    }
 }

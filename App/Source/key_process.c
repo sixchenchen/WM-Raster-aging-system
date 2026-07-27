@@ -57,7 +57,6 @@ void Key_Process_Task(void)
     case KEY_RESET_LONG_EVENT:
 
         Setting_Reset_Long();
-
         break;
     /*
         no key

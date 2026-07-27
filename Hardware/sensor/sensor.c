@@ -2,12 +2,11 @@
 #include "systick.h"
 #include "setting.h"
 
-volatile uint16_t trigger_count = 0;
+// Raster trigger flag bit
 volatile uint8_t sensor_event = 0;
 /*
-    Save the previous state Prevent continuous low-level repeated counting
+    Save the previous state Prevent continuous repeated counting
 */
-
 static uint8_t sensor_last_state = 1;
 /* initilize sensor */
 void Sensor_Init(void)
@@ -30,17 +29,6 @@ void Sensor_Init(void)
     nvic_irq_enable(EXTI4_IRQn, 1, 1);
 }
 
-/* Obtain the number of times the grating starts */
-uint16_t Sensor_GetTriggerCount(void)
-{
-    return trigger_count;
-}
-
-/* clear count */
-void Sensor_Clear_Count(void)
-{
-    trigger_count = 0;
-}
 /* sensor task */
 void Sensor_Task(void)
 {
@@ -52,8 +40,7 @@ void Sensor_Task(void)
         */
         if (GetTimeElapsed(last_trigger_time) > 50)
         {
-            trigger_count++;
-            Sensor_Trigger();
+            Setting_AddCount();
             last_trigger_time = GetTick();
         }
         sensor_event = 0;

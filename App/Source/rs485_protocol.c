@@ -35,7 +35,7 @@ void RS485_SendStatus(uint8_t addr, uint16_t trigger_count)
     data[0] = FRAME_HEAD;
     data[1] = addr;
     data[2] = CMD_STATUS_REPLY;
-    data[3] = 3;                           // data bit length
+    data[3] = 0x03;                        // data bit length
     data[4] = (trigger_count >> 8) & 0xff; // hight 8 bit
     data[5] = trigger_count & 0xff;        // low 8 bit
     data[6] = SENSOR_NORMAL;               // TODO detecting update of the grating
@@ -73,7 +73,7 @@ uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len)
         return 0;
     Slave_Info *slave;
     slave = &slave_list[addr - 1];
-    slave->online = 1;
+    slave->online = SLAVE_ONLINE;
     slave->trigger_count = ((uint16_t)buf[4] << 8) | buf[5];
     slave->sensor_status = buf[6];
     return 1;

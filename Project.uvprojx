@@ -662,6 +662,11 @@
               <FileType>1</FileType>
               <FilePath>.\App\Source\system_config.c</FilePath>
             </File>
+            <File>
+              <FileName>oled_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\oled_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

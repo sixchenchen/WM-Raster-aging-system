@@ -25,7 +25,7 @@ void RS485_Master_Task(void)
     uint8_t rx_buf[RS485_RX_BUF_SIZE];
     switch (state)
     {
-    case MASTER_SEND: // master send task
+    case MASTER_SEND:
         RS485_Request(current_addr);
         wait_tick = GetTick();
         state = MASTER_WAIT;
@@ -33,31 +33,30 @@ void RS485_Master_Task(void)
     case MASTER_WAIT:
         if (RS485_FrameAvailable())
         {
-            uint16_t len;
-            len = RS485_Read(rx_buf);
+            uint16_t len = RS485_Read(rx_buf);
             if (RS485_Parse_Status(rx_buf, len))
             {
                 retry_counter[current_addr - 1] = 0;
-                NextDevice();
+                slave_list[current_addr - 1].online = 1;
+                slave_list[current_addr - 1].last_time = GetTick();
             }
             else
             {
-                // error frame
-                NextDevice();
+                retry_counter[current_addr - 1]++;
             }
+            NextDevice();
         }
         else if (GetTimeElapsed(wait_tick) > RESPONSE_TIMEOUT_MS)
         {
             retry_counter[current_addr - 1]++;
-            if (retry_counter[current_addr - 1] >= RETRY_COUNT)
+            if (retry_counter[current_addr - 1] >= 3)
             {
                 slave_list[current_addr - 1].online = 0;
                 retry_counter[current_addr - 1] = 0;
+                slave_list[current_addr - 1].trigger_count = 0;
             }
             NextDevice();
         }
-        break;
-    default:
         break;
     }
 }

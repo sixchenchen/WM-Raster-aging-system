@@ -3,7 +3,7 @@
 #include "dip_switch.h"
 #include "system_config.h"
 #include "rs485_protocol.h"
-#include "sensor.h"
+#include "setting.h"
 
 /*
     slave task:send current status
@@ -26,10 +26,10 @@ void RS485_Slave_Task(void)
     switch (buf[2])
     {
     case CMD_GET_STATUS:
-        RS485_SendStatus(config->address, Sensor_GetTriggerCount());
+        RS485_SendStatus(config->address, Setting_Get_Value());
         break;
-    case CMD_CLEAR_COUNT:
-        Sensor_Clear_Count();
+    case CMD_CLEAR_COUNT: // Equivalent to triggering the long press duration
+        Setting_Reset_Long();
         break;
     default:
         break;
