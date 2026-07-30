@@ -16,6 +16,7 @@ void Dip_Switch_Init(void);
 uint8_t DIP_Read_Address(void);
 
 /*
+
     read mode switch
 
     PA8 PA9 PA10

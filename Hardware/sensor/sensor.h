@@ -3,6 +3,10 @@
 
 #include "gd32f10x.h"
 
+// Raster trigger flag bit
+extern volatile uint8_t sensor_event;
+extern volatile uint8_t alarm_event;
+
 typedef enum
 {
     SENSOR_NORMAL = 0,

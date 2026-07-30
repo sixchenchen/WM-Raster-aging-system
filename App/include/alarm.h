@@ -48,9 +48,4 @@ void Alarm_Stop(void);
 */
 void Alarm_Task(void);
 
-/*
-    get alarm status
-*/
-uint8_t Alarm_IsActive(void);
-
 #endif

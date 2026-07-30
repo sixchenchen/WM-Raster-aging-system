@@ -15,19 +15,23 @@
 #include "rs485_master_task.h"
 #include "rs485_slave_task.h"
 #include "oled_task.h"
+#include "buzzer.h"
+#include "alarm.h"
 
 int main(void)
 {
 	systick_config();
+	Dip_Switch_Init();
 	System_Config_Init();
 	Setting_Init();
 	Sensor_Init();
 	SEG_Init();
 	Key_Init();
-	Dip_Switch_Init();
 	RS485_Init(RS485_Baud);
 	LED_Init();
 	OLED_Init();
+	Buzzer_Init();
+	Alarm_Init();
 	const System_Config *config = System_Config_Get();
 	while (1)
 	{
@@ -42,6 +46,7 @@ int main(void)
 			Sensor_Task(); // 接收触发信号光栅信号
 			RS485_Task();
 			RS485_Slave_Task(); // 接收的光栅信号实时反馈给主板
+			Alarm_Task();
 			Key_Task();			// 收集按钮触发事件
 			Key_Process_Task(); // 处理按钮出发时间
 			SEG_Task();			// 显示按钮触发事件

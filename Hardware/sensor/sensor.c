@@ -2,8 +2,9 @@
 #include "systick.h"
 #include "setting.h"
 
-// Raster trigger flag bit
+// // Raster trigger flag bit
 volatile uint8_t sensor_event = 0;
+volatile uint8_t alarm_event = 0;
 /*
     Save the previous state Prevent continuous repeated counting
 */
@@ -41,6 +42,7 @@ void Sensor_Task(void)
         if (GetTimeElapsed(last_trigger_time) > 50)
         {
             Setting_AddCount();
+
             last_trigger_time = GetTick();
         }
         sensor_event = 0;
@@ -52,6 +54,7 @@ void EXTI4_IRQHandler(void)
     if (exti_interrupt_flag_get(EXTI_4))
     {
         sensor_event = 1;
+        alarm_event = 1;
         exti_interrupt_flag_clear(EXTI_4);
     }
 }
