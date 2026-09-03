@@ -18,6 +18,7 @@
 #define RS485_DE_PIN GPIO_PIN_1
 #define RS485_TX_PIN GPIO_PIN_2
 #define RS485_RX_PIN GPIO_PIN_3
+#define RS485_BAUD 115200
 
 typedef struct
 {
@@ -33,7 +34,7 @@ typedef struct
  *
  * @param baud
  */
-void RS485_Init(uint32_t baud);
+void RS485_Init(void);
 
 /**
  * @brief RS485 send a byte
@@ -84,5 +85,11 @@ void RS485_Task(void);
  * @return uint8_t
  */
 uint8_t RS485_FrameAvailable(void);
+
+/**
+ * @brief Clear buffer RS485
+ * 
+ */
+void RS485_ClearBuffer(void);
 
 #endif // ! __RS485_H

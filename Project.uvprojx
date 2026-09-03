@@ -667,6 +667,11 @@
               <FileType>1</FileType>
               <FilePath>.\App\Source\oled_task.c</FilePath>
             </File>
+            <File>
+              <FileName>sensor_uplink.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Source\sensor_uplink.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

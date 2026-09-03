@@ -17,6 +17,8 @@
 #include "oled_task.h"
 #include "buzzer.h"
 #include "alarm.h"
+#include "usart.h"
+#include "sensor_uplink.h"
 
 int main(void)
 {
@@ -27,11 +29,13 @@ int main(void)
 	Sensor_Init();
 	SEG_Init();
 	Key_Init();
-	RS485_Init(RS485_Baud);
+	RS485_Init();
+	SENSOR_UPLINK_Init();
 	LED_Init();
 	OLED_Init();
 	Buzzer_Init();
 	Alarm_Init();
+	USART2_Init();
 	const System_Config *config = System_Config_Get();
 	while (1)
 	{
@@ -39,13 +43,14 @@ int main(void)
 		{
 			RS485_Task();
 			RS485_Master_Task(); // 收集分板数据，并实时显示出来
+			SENSOR_UPLINK_Poll();
 			OLED_Task();
 		}
 		else if (config->board == BOARD_SLAVE)
 		{
 			Sensor_Task(); // 接收触发信号光栅信号
 			RS485_Task();
-			RS485_Slave_Task(); // 接收的光栅信号实时反馈给主板
+			RS485_Slave_Task(); // 接收的光栅信号
 			Alarm_Task();
 			Key_Task();			// 收集按钮触发事件
 			Key_Process_Task(); // 处理按钮出发时间

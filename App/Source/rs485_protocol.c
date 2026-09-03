@@ -35,7 +35,7 @@ void RS485_SendStatus(uint8_t addr, uint16_t trigger_count)
     data[0] = FRAME_HEAD;
     data[1] = addr;
     data[2] = CMD_STATUS_REPLY;
-    data[3] = 0x03;                        // data bit length
+    data[3] = DATA_LENGTH;                 // data bit length
     data[4] = (trigger_count >> 8) & 0xff; // hight 8 bit
     data[5] = trigger_count & 0xff;        // low 8 bit
     data[6] = SENSOR_NORMAL;               // TODO detecting update of the grating
@@ -47,14 +47,13 @@ void RS485_SendStatus(uint8_t addr, uint16_t trigger_count)
     485 Parse String
     buf:
     buf[0]:Header
-    buf[1]Address
+    buf[1]:Address
     buf[2]:Command Length
     buf[4~Lenght]:Data
     buf[Lenght+1]:CRC
 */
 uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len)
 {
-
     if (len < 8)
         return 0;
     if (buf[0] != FRAME_HEAD)

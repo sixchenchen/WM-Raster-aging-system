@@ -10,7 +10,7 @@
 #define USART2_RX_PIN GPIO_PIN_11
 #define USART2_TX_PIN GPIO_PIN_10
 
-void USART2_Init(uint32_t baud);
+void USART2_Init(void);
 
 void USART2_SendByte(uint8_t data);
 
@@ -24,9 +24,7 @@ void USART2_SendString(char *str);
 uint16_t USART2_GetRxLength(void);
 
 /*
-    Read received data
-        读取接收数据
-
+    Read received data,读取接收数据
     return:
     1 success
     0 fail

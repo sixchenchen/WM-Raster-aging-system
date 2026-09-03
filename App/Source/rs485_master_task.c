@@ -4,11 +4,13 @@
 #include "system_config.h"
 #include "rs485_protocol.h"
 #include "systick.h"
+#include "sensor_uplink.h"
 
 static Master_State state = MASTER_SEND;
 static uint8_t current_addr = 1; // Poll the starting address of the slave device
 static uint32_t wait_tick;       // Host sending and receiving tick status
 static uint8_t retry_counter[SLAVE_COUNT] = {0};
+static bool s_poll_complete = FALSE; // The indicator of completing a round of polling
 
 static void NextDevice(void)
 {
@@ -16,6 +18,7 @@ static void NextDevice(void)
     if (current_addr > SLAVE_COUNT)
     {
         current_addr = 1;
+        SENSOR_UPLINK_TriggerSend();
     }
     state = MASTER_SEND;
 }

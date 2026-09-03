@@ -5,17 +5,17 @@ static uint8_t rx_buf[USART2_RX_BUF_SIZE];
 static volatile uint16_t rx_count = 0;
 
 /*  USART2 init */
-void USART2_Init(uint32_t baud)
+void USART2_Init(void)
 {
     // 1. configure the clock enable
     rcu_periph_clock_enable(RCU_GPIOB);
     rcu_periph_clock_enable(RCU_USART2);
     // 2. configure TX PB10 Reused push-pull output and RX PB11 Floating input
-    gpio_init(USART2_PORT, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ,USART2_TX_PIN);
+    gpio_init(USART2_PORT, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, USART2_TX_PIN);
     gpio_init(USART2_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, USART2_RX_PIN);
     // 3. config usart
     usart_deinit(USART2);
-    usart_baudrate_set(USART2, baud);
+    usart_baudrate_set(USART2, USART2_BAUD);
     /*
         8-bit data
         1 stop bit
@@ -79,13 +79,10 @@ uint8_t USART2_GetRxData(uint8_t *buf, uint16_t len)
     {
         buf[i] = rx_buf[i];
     }
-
     /*
         clear buffer
     */
-
     rx_count = 0;
-
     return 1;
 }
 
@@ -94,16 +91,15 @@ void USART2_ClearRxBuffer(void)
     rx_count = 0;
 }
 
-// void USART2_IRQHandler(void)
-// {
-//     uint8_t data;
-//     if (RESET != usart_interrupt_flag_get(USART2, USART_INT_FLAG_RBNE))
-//     {
-//         data = usart_data_receive(USART2);
-
-//         if (rx_count < USART2_RX_BUF_SIZE)
-//         {
-//             rx_buf[rx_count++] = data;
-//         }
-//     }
-// }
+void USART2_IRQHandler(void)
+{
+    uint8_t data;
+    if (RESET != usart_interrupt_flag_get(USART2, USART_INT_FLAG_RBNE))
+    {
+        data = usart_data_receive(USART2);
+        if (rx_count < USART2_RX_BUF_SIZE)
+        {
+            rx_buf[rx_count++] = data;
+        }
+    }
+}

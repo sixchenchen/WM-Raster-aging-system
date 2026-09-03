@@ -3,7 +3,7 @@
 
 #include "gd32f10x.h"
 
-#define SLAVE_COUNT 32
+#define SLAVE_COUNT 31
 #define SLAVE_ONLINE 1
 
 /*
@@ -68,6 +68,7 @@ typedef struct
     uint16_t trigger_count;
     uint8_t sensor_status;
     uint32_t last_time;
+    uint32_t last_trigger_time;
 } Slave_Info;
 
 /*

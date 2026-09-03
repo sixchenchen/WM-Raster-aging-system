@@ -15,6 +15,8 @@
 
 #define CMD_CLEAR_REPLY 0x82
 
+#define DATA_LENGTH 0x03
+
 uint8_t RS485_CalcCRC(uint8_t *buf, uint16_t len);
 
 void RS485_Request(uint8_t addr);
