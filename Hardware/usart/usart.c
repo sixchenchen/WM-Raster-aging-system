@@ -1,4 +1,5 @@
 #include "usart.h"
+#include "string.h"
 
 static uint8_t rx_buf[USART2_RX_BUF_SIZE];
 
@@ -91,6 +92,23 @@ void USART2_ClearRxBuffer(void)
     rx_count = 0;
 }
 
+/*
+    USART2 echo task
+*/
+void USART2_EchoTask(void)
+{
+    uint8_t rx_buffer[USART2_RX_BUF_SIZE];
+    uint16_t rx_len;
+    
+    rx_len = USART2_GetRxLength();
+    if (rx_len > 0)
+    {
+        if (USART2_GetRxData(rx_buffer, rx_len))
+        {
+            USART2_SendArray(rx_buffer, rx_len);
+        }
+    }
+}
 void USART2_IRQHandler(void)
 {
     uint8_t data;

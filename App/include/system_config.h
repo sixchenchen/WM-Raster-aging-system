@@ -3,7 +3,8 @@
 
 #include "gd32f10x.h"
 
-#define SLAVE_COUNT 31
+#define MAX_SLAVE_ADDRESS 31
+#define SLAVE_OFFLINE 0
 #define SLAVE_ONLINE 1
 
 /*
@@ -28,7 +29,6 @@ typedef enum
 /*
     Sensor mode
 */
-
 typedef enum
 {
     SENSOR_NO = 0, // normally open
@@ -65,10 +65,12 @@ typedef struct
 typedef struct
 {
     uint8_t online;
+    uint8_t discovered;
     uint16_t trigger_count;
     uint8_t sensor_status;
     uint32_t last_time;
     uint32_t last_trigger_time;
+    uint32_t timestamp;
 } Slave_Info;
 
 /*
@@ -80,6 +82,6 @@ void System_Config_Init(void);
 get config pointer
 */
 const System_Config *System_Config_Get(void);
-extern Slave_Info slave_list[SLAVE_COUNT];
+extern Slave_Info slave_list[MAX_SLAVE_ADDRESS];
 
 #endif

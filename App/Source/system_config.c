@@ -1,5 +1,5 @@
 #include "system_config.h"
-
+#include <string.h>
 #include "dip_switch.h"
 #include "sensor.h"
 
@@ -7,7 +7,7 @@
     global configuration instance
 */
 static System_Config sys_config;
-Slave_Info slave_list[SLAVE_COUNT];
+Slave_Info slave_list[MAX_SLAVE_ADDRESS];
 
 /*
     initialize system configuration
@@ -18,6 +18,7 @@ void System_Config_Init(void)
     /*
         read address
     */
+    memset(slave_list, 0, sizeof(slave_list));
     sys_config.address = DIP_Read_Address();
     /*
         read mode switch

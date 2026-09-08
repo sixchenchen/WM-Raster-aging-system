@@ -15,7 +15,9 @@
 
 #define CMD_CLEAR_REPLY 0x82
 
-#define DATA_LENGTH 0x03
+#define DATA_LENGTH 0x07
+
+#define FRAME_LENGTH 12 // HEAD(1)+ADDR(1)+CMD(1)+LEN(1)+DATA(7)+CRC(1)=12
 
 uint8_t RS485_CalcCRC(uint8_t *buf, uint16_t len);
 
@@ -23,7 +25,7 @@ void RS485_Request(uint8_t addr);
 
 void RS485_SendStatus(uint8_t addr, uint16_t trigger_count);
 
-uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len);
+uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len, uint8_t expected_addr);
 
 uint8_t RS485_CheckFrame(uint8_t *buf, uint16_t len);
 

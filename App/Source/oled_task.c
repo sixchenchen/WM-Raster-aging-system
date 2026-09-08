@@ -18,7 +18,7 @@ void OLED_Task(void)
     /*
         显示在线设备
     */
-    for (i = 0; i < SLAVE_COUNT; i++)
+    for (i = 0; i < MAX_SLAVE_ADDRESS; i++)
     {
         /*
             只显示在线设备

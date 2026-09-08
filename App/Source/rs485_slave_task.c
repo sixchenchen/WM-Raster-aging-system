@@ -17,7 +17,8 @@ void RS485_Slave_Task(void)
     if (!RS485_FrameAvailable())
         return;
     uint16_t len;
-    uint8_t buf[RS485_RX_BUF_SIZE];
+    // 本协议最大帧长12字节，16字节足够，避免占用大块栈空间
+    uint8_t buf[16];
     len = RS485_Read(buf);
     if (!RS485_CheckFrame(buf, len))
         return;

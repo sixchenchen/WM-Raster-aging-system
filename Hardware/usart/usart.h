@@ -35,5 +35,6 @@ uint8_t USART2_GetRxData(uint8_t *buf, uint16_t len);
     Clear the receiving buffer
 */
 void USART2_ClearRxBuffer(void);
+void USART2_EchoTask(void);
 
 #endif

@@ -14,14 +14,14 @@ void LED_Init(void)
 /* open led */
 void LED_On(void)
 {
-    gpio_bit_reset(LED_PORT, LED_PIN);
+    gpio_bit_reset(LED_PORT, LED_PIN); // led is low level effective
 }
 
 /* close led */
 void LED_Off(void)
 {
-    gpio_bit_set(LED_PORT, LED_PIN);
-}
+    gpio_bit_set(LED_PORT, LED_PIN); // led is high level effective
+} 
 
 
 /* toggle led */

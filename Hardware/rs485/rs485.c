@@ -54,6 +54,7 @@ void RS485_Init(void)
 void RS485_SendByte(uint8_t data)
 {
     RS485_TX_Mode();
+    delay_1ms(1);
     uint32_t timeout = 10000;
     while (RESET == usart_flag_get(USART1, USART_FLAG_TBE))
     {
@@ -73,7 +74,9 @@ void RS485_SendByte(uint8_t data)
             break;
         }
     }
+    delay_1ms(1);
     RS485_RX_Mode();
+    delay_1ms(1);
 }
 /**
  * RS485 send array
@@ -81,7 +84,14 @@ void RS485_SendByte(uint8_t data)
 void RS485_SendArray(uint8_t *data, uint16_t len)
 {
     uint16_t i;
+    
+    if (len == 0 || data == NULL)
+        return;
+    
     RS485_TX_Mode();
+    
+    for (volatile uint32_t delay = 0; delay < 100; delay++);
+    
     for (i = 0; i < len; i++)
     {
         uint32_t timeout = 10000;
@@ -95,7 +105,7 @@ void RS485_SendArray(uint8_t *data, uint16_t len)
         }
         usart_data_transmit(USART1, data[i]);
     }
-
+    
     uint32_t timeout = 10000;
     while (RESET == usart_flag_get(USART1, USART_FLAG_TC))
     {
@@ -104,7 +114,11 @@ void RS485_SendArray(uint8_t *data, uint16_t len)
             break;
         }
     }
+    for (volatile uint32_t delay = 0; delay < 500; delay++);  // 约100us
+    
+    // 6. 切换回接收模式
     RS485_RX_Mode();
+    for (volatile uint32_t delay = 0; delay < 50; delay++);
 }
 
 /**
@@ -129,23 +143,27 @@ uint8_t RS485_Available(void)
 /**
  * RS485 read
  */
-
 uint16_t RS485_Read(uint8_t *buf)
 {
     uint16_t len = 0;
-
+    
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
-
-    len = rs485.rx_count;
-    if (len > 0 && len <= RS485_RX_BUF_SIZE)
+    
+    if (rs485.frame_ready && rs485.rx_count > 0)
     {
+        len = rs485.rx_count;
+        if (len > RS485_RX_BUF_SIZE)
+            len = RS485_RX_BUF_SIZE;
+        
         memcpy(buf, rs485.rx_buf, len);
+        
+        // 清空所有状态
         rs485.rx_count = 0;
         rs485.frame_ready = 0;
         rs485.rx_flag = 0;
     }
-
+    
     __set_PRIMASK(primask);
     return len;
 }
@@ -163,19 +181,22 @@ void RS485_Task(void)
 /* Check the completeness of the frame count */
 uint8_t RS485_FrameAvailable(void)
 {
+    // 如果已经有帧就绪标志，直接返回
+    if (rs485.frame_ready)
+        return 1;
+    
+    // 没有数据
     if (rs485.rx_count == 0)
-    {
         return 0;
-    }
+    
+    // 检查超时
     if (GetTimeElapsed(rs485.rx_tick) >= RS485_FRAME_TIMEOUT_MS)
     {
         rs485.frame_ready = 1;
+        return 1;
     }
-    if (GetTimeElapsed(rs485.rx_tick) > RS485_FRAME_TIMEOUT_MS * 10)
-    {
-        rs485.frame_ready = 1;
-    }
-    return rs485.frame_ready;
+    
+    return 0;
 }
 
 /**
@@ -193,6 +214,25 @@ void USART1_IRQHandler(void)
             /* Each byte received Update time */
             rs485.rx_tick = GetTick();
             rs485.rx_flag = 1;
+        }
+    }
+}
+
+/*
+    RS485 Echo Test
+*/
+void RS485_EchoTest(void)
+{
+    uint8_t rx_buffer[RS485_RX_BUF_SIZE];
+    uint16_t rx_len;
+
+    if (RS485_FrameAvailable())
+    {
+        rx_len = RS485_Read(rx_buffer);
+        if (rx_len > 0)
+        {
+            // 发送收到的数据
+            RS485_SendArray(rx_buffer, rx_len);
         }
     }
 }

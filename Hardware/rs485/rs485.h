@@ -3,7 +3,7 @@
 
 #include "gd32f10x.h"
 
-#define RS485_RX_BUF_SIZE 128
+#define RS485_RX_BUF_SIZE 1024
 
 #define RS485_Baud 115200
 
@@ -85,6 +85,12 @@ void RS485_Task(void);
  * @return uint8_t
  */
 uint8_t RS485_FrameAvailable(void);
+
+/*
+    RS485 Echo Test
+*/
+void RS485_EchoTest(void);
+
 
 /**
  * @brief Clear buffer RS485
