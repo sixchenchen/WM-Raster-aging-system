@@ -133,14 +133,6 @@ void RS485_SendString(char *str)
 }
 
 /**
- * RS485 available
- */
-uint8_t RS485_Available(void)
-{
-    return rs485.rx_flag;
-}
-
-/**
  * RS485 read
  */
 uint16_t RS485_Read(uint8_t *buf)
@@ -161,7 +153,6 @@ uint16_t RS485_Read(uint8_t *buf)
         // 清空所有状态
         rs485.rx_count = 0;
         rs485.frame_ready = 0;
-        rs485.rx_flag = 0;
     }
     
     __set_PRIMASK(primask);
@@ -170,10 +161,10 @@ uint16_t RS485_Read(uint8_t *buf)
 
 void RS485_Task(void)
 {
-    if (rs485.rx_count == 0)
+    if (rs485.rx_count == 0) // 缓冲区没有接收到数据
         return;
 
-    if (GetTimeElapsed(rs485.rx_tick) >= RS485_FRAME_TIMEOUT_MS)
+    if (GetTimeElapsed(rs485.rx_tick) >= RS485_FRAME_TIMEOUT_MS) // 如果有数据等待设备5毫秒等待接收完毕
     {
         rs485.frame_ready = 1;
     }
@@ -213,7 +204,6 @@ void USART1_IRQHandler(void)
             rs485.rx_buf[rs485.rx_count++] = (uint8_t)data;
             /* Each byte received Update time */
             rs485.rx_tick = GetTick();
-            rs485.rx_flag = 1;
         }
     }
 }
@@ -242,6 +232,5 @@ void RS485_ClearBuffer(void)
     __disable_irq();
     rs485.rx_count = 0;
     rs485.frame_ready = 0;
-    rs485.rx_flag = 0;
     __set_PRIMASK(primask);
 }

@@ -16,11 +16,6 @@ static uint8_t active_slave_count = 0;               //  当前实际发现的�
 static uint8_t poll_index = 0;                       // 当前轮询到 active_slave_list[] 的哪个位置
 static uint8_t discovery_addr = 1;                   // 当前 Discovery 扫描地址
 static uint32_t last_discovery_time = 0;             // 上一次 Discovery 完成/开始的时间
-// static bool s_poll_complete = FALSE;                 // The indicator of completing a round of polling
-/*
-    static function
-*/
-static void NextDevice(void);
 
 /*
     开始一轮全新扫描：
@@ -40,8 +35,7 @@ static void BeginDiscoverySweep(void)
 }
 
 /*
-    根据 slave_list[].discovered
-    重新建立正常轮询列表
+    根据 slave_list[].discovered,重新建立正常轮询列表
 */
 static void RebuildActiveSlaveList(void)
 {
@@ -118,12 +112,12 @@ static void NextPollDevice(void)
     {
         // 回到第一个设备
         poll_index = 0;
-        //  一轮轮询结束，通知 ESP32 上传数据
+        // 一轮轮询结束，通知 ESP32 上传数据
         SENSOR_UPLINK_TriggerSend();
     }
     // 获取下一个实际设备地址
     current_addr = active_slave_list[poll_index];
-    //   进入正常发送
+    // 进入正常发送
     state = MASTER_SEND;
 }
 
@@ -159,8 +153,7 @@ static void NextDiscoveryAddress(void)
 
 void RS485_Master_Task(void)
 {
-    // RS485接收缓冲区：本协议应答帧12字节，另有主站自身5字节回声前缀可能拼接成帧，
-    // 预留至24字节，避免回声+应答拼接时溢出栈缓冲。
+    // RS485接收缓冲区：本协议应答帧12字节，另有主站自身5字节回声前缀可能拼接成帧，预留至24字节，避免回声+应答拼接时溢出栈缓冲。
     uint8_t rx_buf[24];
     switch (state)
     {
@@ -273,10 +266,20 @@ void RS485_Master_Task(void)
             */
         }
         // 当前地址没有响应
-        else if (GetTimeElapsed(wait_tick) > RESPONSE_TIMEOUT_MS)
+        else
         {
-            // 不响应：不能认为后面地址也不存在，所以直接扫描下一个地址
-            NextDiscoveryAddress();
+            /*
+                时间基准：用 persisted 的 discovered 标志区分"已知设备"与"未知空地址"。
+                - 曾回复过的设备（discovered=1）：给足 RESPONSE_TIMEOUT_MS，避免慢设备被误判为空。
+                - 从未见过的空地址（discovered=0）：用 DISCOVERY_TIMEOUT_FAST_MS 快速判空跳过，
+                  大幅缩短全量重扫的停摆时间（28 个空址 × 80ms → × 20ms）。
+            */
+            uint32_t discovery_to = slave_list[discovery_addr - 1].discovered ? (uint32_t)RESPONSE_TIMEOUT_MS : (uint32_t)DISCOVERY_TIMEOUT_FAST_MS;
+            if (GetTimeElapsed(wait_tick) > discovery_to)
+            {
+                // 不响应：不能认为后面地址也不存在，所以直接扫描下一个地址
+                NextDiscoveryAddress();
+            }
         }
         break;
     default:

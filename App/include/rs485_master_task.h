@@ -4,8 +4,9 @@
 #include "system_config.h"
 
 #define RESPONSE_TIMEOUT_MS 80
+#define DISCOVERY_TIMEOUT_FAST_MS 20 
 #define RETRY_COUNT 3
-#define DISCOVERY_INTERVAL_MS 30000  
+#define DISCOVERY_INTERVAL_MS 20000  
 
 
 /* master State */

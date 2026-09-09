@@ -24,7 +24,6 @@ typedef struct
 {
     uint8_t rx_buf[RS485_RX_BUF_SIZE];
     uint16_t rx_count;
-    uint8_t rx_flag;
     uint32_t rx_tick;
     uint8_t frame_ready;
 } RS485_Handle;
@@ -98,4 +97,4 @@ void RS485_EchoTest(void);
  */
 void RS485_ClearBuffer(void);
 
-#endif // ! __RS485_H
+#endif

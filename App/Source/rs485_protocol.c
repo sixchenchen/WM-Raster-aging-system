@@ -81,7 +81,7 @@ uint8_t RS485_Parse_Status(uint8_t *buf, uint16_t len, uint8_t expected_addr)
         return 0;
 
     /*
-        主站自身发送的请求帧会经RS485半双工总线回读进本机RX，
+        主控发送的请求帧会经RS485半双工总线回读进本机RX，
         收到的buf可能是"主站请求回声 + 从机应答"拼接而成。
         因此不能假设应答从buf[0]开始，需在缓冲区内逐位搜寻真正的
         应答帧前缀(HEAD+ADDR+CMD_STATUS_REPLY)，避免解析失败导致
